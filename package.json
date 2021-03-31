@@ -1,0 +1,29 @@
+{
+  "name": "aquasoft",
+  "version": "1.0.0",
+  "description": "Internship",
+  "main": "index.js",
+  "scripts": {
+    "server": "concurrently -k npm:server:*",
+    "server:rest": "json-server -q db.json",
+    "server:employees": "nodemon employees.js",
+    "server:projects": "nodemon projects.js",
+    "server:graphql": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Gabriel Tuculina",
+  "license": "ISC",
+  "dependencies": {
+    "@apollo/federation": "^0.22.0",
+    "@apollo/gateway": "^0.25.0",
+    "apollo-server": "^2.22.2",
+    "apollo-server-core": "^2.22.2",
+    "concurrently": "^6.0.0",
+    "express": "^4.17.1",
+    "express-graphql": "^0.12.0",
+    "graphql": "^15.5.0",
+    "json-server": "^0.16.3",
+    "node-fetch": "^2.6.1",
+    "nodemon": "^2.0.7"
+  }
+}
