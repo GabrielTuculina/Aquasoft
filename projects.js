@@ -1,6 +1,6 @@
 const { ApolloServer, gql } = require("apollo-server");
 const { buildFederatedSchema } = require("@apollo/federation");
-const fetch = require("node-fetch");
+const db = require('./database');
 
 const port = 4002;
 const apiUrl = "http://localhost:3000";
@@ -22,18 +22,26 @@ const typeDefs = gql`
 `;
 
 const resolvers = {
-    Project: {
-        __resolveReference(ref) {
-            return fetch(`${apiUrl}/projects/${ref.id}`).then(res => res.json).catch(err => console.log(err));
-        }
-    },
     Query: {
-        employee(_, [ id ]) {
-            return fetch(`${apiUrl}/projects/${id}`).then(res => res.json).catch(err => console.log(err));
-        },
-        employees() {
-            return fetch(`${apiUrl}/projects`).then(res => res.json).catch(err => console.log(err));
-        }
+        projects: async () => db.projects.findAll(),
+        project: async (obj, args, context, info) =>
+            db.projects.findByPk(args.id)
+    },
+    Mutation: {
+        createProject: async (_, { project_name, start_date, planned_end_date, description, project_code }) => 
+            db.projects.create({ project_name, start_date, planned_end_date, description, project_code }),
+        deleteProject: async (_, { project_name }) =>
+            db.projects.destroy({ 
+                where: {
+                    project_name
+                }
+            }),
+        updateProject: async (_, { id, project_name, start_date, planned_end_date, description, project_code }) =>
+            db.projects.update({ project_name, start_date, planned_end_date, description, project_code }, {
+                where: {
+                    id
+                }
+            })
     }
 };
 
@@ -41,6 +49,6 @@ const server = new ApolloServer({
     schema: buildFederatedSchema([ { typeDefs, resolvers } ])
 });
 
-server.listen({ port }).then( url => {
+server.listen({ port }).then( ({url}) => {
     console.log(`Projects service ready at ${url}`);
 }).catch(err => console.log(err));

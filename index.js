@@ -15,6 +15,6 @@ const server = new ApolloServer({
     subscriptions: false
 });
 
-server.listen({ port }).then( url => {
+server.listen({ port }).then( ({url}) => {
     console.log(`Server ready at ${url}`);
 }).catch(err => console.log(err));

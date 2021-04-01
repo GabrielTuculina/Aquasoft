@@ -1,48 +1,19 @@
 {
-  "projects": [
+  "posts": [
     {
       "id": 1,
-      "project_name": "Aquasoft first project",
-      "start_date": "30.03.2021",
-      "planned_end_date": "As soon as God allows me",
-      "description": "Hello World project that weirdly works ... or not",
-      "project_code": "insert random code here"
-    },
-    {
-      "id": 2,
-      "project_name": "Ana are mere",
-      "start_date": "03.04.2020",
-      "planned_end_date": "30.09.2020",
-      "description": "Just another failure",
-      "project_code": "insert random code here2"
-    },
-    {
-      "id": 3,
-      "project_name": "Hello friends",
-      "start_date": "22.04.2021",
-      "planned_end_date": "27.09.2021",
-      "description": "The legend has it they never answered",
-      "project_code": "insert random code here3"
+      "title": "json-server",
+      "author": "typicode"
     }
   ],
-  "employees": [
+  "comments": [
     {
       "id": 1,
-      "name": "Gabriel",
-      "email": "followMe@DoNotDisturb.com",
-      "hire_date": "Better sooner than later",
-      "salary": "4500",
-      "job_title": "Programul primul inginer",
-      "projects": [1, 2]
-    },
-    {
-      "id": 2,
-      "name": "Andrew",
-      "email": "sadBumpkin@gmail.com",
-      "hire_date": "12.04.2021",
-      "salary": "5000",
-      "job_title": "Middle Software Developer",
-      "projects": [3]
+      "body": "some comment",
+      "postId": 1
     }
-  ]
+  ],
+  "profile": {
+    "name": "typicode"
+  }
 }

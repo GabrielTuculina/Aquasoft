@@ -1,6 +1,6 @@
 const { ApolloServer, gql } = require("apollo-server");
 const { buildFederatedSchema } = require("@apollo/federation");
-const fetch = require("node-fetch");
+const db = require('./database');
 
 const port = 4001;
 const apiUrl = "http://localhost:3000";
@@ -13,13 +13,12 @@ const typeDefs = gql`
         hire_date: String
         salary: String
         job_title: String
-        projects: [Project]
     }
 
     extend type Project @key(fields: "id") {
         id: ID! @external
         employees: [Employee]
-    }
+      }
 
     extend type Query {
         employee(id: ID!): Employee
@@ -28,28 +27,26 @@ const typeDefs = gql`
 `;
 
 const resolvers = {
-    // Project: {
-    //     async employees(project) {
-    //         const res = await fetch(`${apiUrl}/employees`);
-    //         const employees = await res.json();
-      
-    //         return employees.filter(({ projects }) =>
-    //           projects.includes(parseInt(project.id))
-    //         );
-    //     }
-    // },
-    // Employee: {
-    //     projects(employee) {
-    //         return employee.projects.map(id => ({ __typename: "Project", id }));
-    //     }
-    // },
     Query: {
-        employee(_, [ id ]) {
-            return fetch(`${apiUrl}/employees/${id}`).then(res => res.json).catch(err => console.log(err));
-        },
-        employees() {
-            return fetch(`${apiUrl}/employees`).then(res => res.json).catch(err => console.log(err));
-        }
+        employees: async () => db.employees.findAll(),
+        employee: async (obj, args, context, info) =>
+            db.employees.findByPk(args.id)
+    },
+    Mutation: {
+        createEmployee: async (_, { employeePayload: { name, email, hire_date, salary, job_title } }) => 
+            db.employees.create({ name, email, hire_date, salary, job_title }),
+        deleteEmployee: async (_, { employeePayload: { name }}) =>
+            db.employees.destroy({ 
+                where: {
+                    name
+                }
+            }),
+        updateEmployee: async (_, { employeePayload: { id, name, email, hire_date, salary, job_title }}) =>
+            db.employees.update({ name, email, hire_date, salary, job_title }, {
+                where: {
+                    id
+                }
+            })
     }
 };
 
@@ -57,6 +54,6 @@ const server = new ApolloServer({
     schema: buildFederatedSchema([{ typeDefs, resolvers }])
 });
 
-server.listen({ port }).then( url => {
+server.listen({ port }).then( ({url}) => {
     console.log(`Employees service ready at ${url}`);
 }).catch(err => console.log(err));
