@@ -30,8 +30,6 @@ models.forEach(model => {
     db[seqModel.name] = seqModel
 })
 
-Sequelize.DATE
-
 // Apply associations
 Object.keys(db).forEach(key => {
     if ('associate' in db[key]) {

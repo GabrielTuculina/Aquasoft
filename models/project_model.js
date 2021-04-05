@@ -19,7 +19,7 @@ module.exports = function(sequelize, DataTypes) {
 			allowNull: false
         },
 		description: {
-			type: DataTypes.STRING(30),
+			type: DataTypes.STRING(256),
 			allowNull: false
 		},
 		project_code: {

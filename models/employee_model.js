@@ -25,6 +25,10 @@ module.exports = function(sequelize, DataTypes) {
         job_title: {
             type: DataTypes.STRING(64),
 			allowNull: false
+        },
+        project_id: {
+            type: DataTypes.INTEGER(10),
+			allowNull: false
         }
 	}, {
 		tableName: 'employees',
