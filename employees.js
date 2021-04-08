@@ -23,6 +23,7 @@ const typeDefs = gql`
     extend type Query {
         employee(id: ID!): Employee
         employees: [Employee]
+        employeesByProjectId(project_id: ID!): [Employee]
     }
 
     extend type Mutation {
@@ -32,20 +33,21 @@ const typeDefs = gql`
             hire_date: String!
             salary: String!
             job_title: String!
-            project_id: [Int]
-        ): Boolean
+            project_id: Int
+        ): Employee
         deleteEmployee(
-            id: Int!
-        ): Boolean
+            id: Int!,
+            project_id: Int!
+        ): [Employee]
         updateEmployee(
-            id: [Int!]
+            id: ID!
             name: String!
             email: String!
             hire_date: String!
             salary: String!
             job_title: String!
-            project_id: [Int]
-        ): Boolean
+            project_id: Int!
+        ): Employee
     }
 `;
 
@@ -53,45 +55,38 @@ const resolvers = {
     Query: {
         employees: async () => db.employees.findAll(),
         employee: async (obj, args, context, info) =>
-            db.employees.findByPk(args.id)
+            db.employees.findByPk(args.id),
+        employeesByProjectId: async (obj, args, context, info) =>
+            db.employees.findAll({
+                where: {
+                    project_id: args.project_id
+                }
+            }),
     },
     Mutation: {
-        createEmployee: async (_, { name, email, hire_date, salary, job_title, project_id }) => {
-            // console.log(name + " " + email + " " + hire_date + " " + salary + " " + job_title + " " + project_id);
-            project_id.forEach(id => db.employees.create({ name, email, hire_date, salary, job_title, project_id: id }));
-        },
-        deleteEmployee: async (_, { id }) =>
+        createEmployee: async (_, { name, email, hire_date, salary, job_title, project_id }) =>
+            db.employees.create({ name, email, hire_date, salary, job_title, project_id }),
+        deleteEmployee: async (_, { id, project_id }) => {
             db.employees.destroy({ 
                 where: {
                     id
                 }
-            }),
-        updateEmployee: async (_, { name, email, hire_date, salary, job_title, project_ids }) => {
-            // Delete entries that don't correspond to the new project_ids
-            db.employees.destroy({
+            });
+
+            return db.employees.findAll({
                 where: {
-                    id,
-                    [Op.notIn]: project_ids
+                    project_id: project_id
+                }
+            });
+        },
+        updateEmployee: async (_, { id, name, email, hire_date, salary, job_title, project_id }) => {
+            db.employees.update({ name, email, hire_date, salary, job_title, project_id }, {
+                where: {
+                    id
                 }
             });
 
-            // Create new entries if the case
-            project_ids.forEach(project_id => {
-                db.employees.findOrCreate({ name, email, hire_date, salary, job_title, project_id }, {
-                    where: {
-                        email, project_id
-                    }
-                })
-            });
-
-            // Update entries
-            project_ids.forEach(project_id => {
-                db.employees.update({ name, salary, job_title }, {
-                    where: {
-                        email, project_id
-                    }
-                })
-            });
+            return { id, name, email, hire_date, salary, job_title, project_id };
         }
     }
 };
